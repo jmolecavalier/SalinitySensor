@@ -1,26 +1,16 @@
-#include <dht.h>
-
-//
-//    FILE: dht11_test.ino
-//  AUTHOR: Rob Tillaart
-// VERSION: 0.1.00
-// PURPOSE: DHT library test sketch for DHT11 && Arduino
-//     URL:
-//
-// Released to the public domain
-//
-
+// AUTHOR: Joshwa Moellenkamp
 #include <dht.h>
 
 dht DHT;
 
-int DHT11_PIN   = 5;
-int salinityPin = 4;
-int solenoidPin = 3; 
+int DHT11_PIN   = 5; // PIN that will read the signal from the Tempurature Sensor
+int salinityPin = 4; // PIN that will read the signal from the Salinity Sensor
+int solenoidPin = 3; // PIN that will write a digital HIGH to power a solenoid
 
-float salinityReading;
-float convertedSalinity;
+float salinityReading;   // Float that will hold the signal from the Salinity Sensor
+float convertedSalinity; // Float that will hold the Salinity Sensor's reading in Voltage
 
+// SET UP THE PRGOGRAM
 void setup()
 {
   Serial.begin(9600);
@@ -31,17 +21,16 @@ void setup()
   Serial.println("Type,\tstatus,\tHumidity (%),\tTemperature (C)");
 }
 
+// CREATE THE FUNCTIONALITY LOOP
 void loop()
 {
   // TURN ON THE SOLENOID
   digitalWrite(solenoidPin, HIGH);
   
-  
-  
   // READ DATA FROM THE TEMPURATURE SENSOR
   // TEMP VARIABLE WAS ORIGINALLY CALLED chk
-  int temp = DHT.read11(DHT11_PIN);
-  switch (temp)
+  int chk = DHT.read11(DHT11_PIN);
+  switch (chk)
   {
     case DHTLIB_OK:  
                 Serial.print("OK,\t"); 
@@ -56,10 +45,12 @@ void loop()
                 Serial.print("Unknown error,\t"); 
                 break;
   }
+  
   // READ DATA FROM THE SALINITY SENSOR
   salinityReading = analogRead(salinityPin);  
   // CONVERT THIS DATA TO A VOLTAGE
   convertedSalinity = (salinityReading / 1023.0) * 5;
+  
   // DISPLAY DATA
   Serial.print(DHT.humidity, 1);
   Serial.print(",\t");
