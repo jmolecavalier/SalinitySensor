@@ -14,8 +14,9 @@
 
 dht DHT;
 
-int DHT11_PIN = 5;
+int DHT11_PIN   = 5;
 int salinityPin = 4;
+int solenoidPin = 3; 
 
 float salinityReading;
 float convertedSalinity;
@@ -32,6 +33,11 @@ void setup()
 
 void loop()
 {
+  // TURN ON THE SOLENOID
+  digitalWrite(solenoidPin, HIGH);
+  
+  
+  
   // READ DATA FROM THE TEMPURATURE SENSOR
   // TEMP VARIABLE WAS ORIGINALLY CALLED chk
   int temp = DHT.read11(DHT11_PIN);
