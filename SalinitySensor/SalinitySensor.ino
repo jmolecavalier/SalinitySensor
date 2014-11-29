@@ -3,14 +3,15 @@
 
 dht DHT;
 
-int DHT11_PIN   = 5; // PIN that will read the signal from the Tempurature Sensor
-int salinityPin = 4; // PIN that will read the signal from the Salinity Sensor
-int solenoidPin = 3; // PIN that will write a digital HIGH to power a solenoid
+int DHT11_PIN   = 5; // PIN that will read the signal from the Tempurature Sensor (DIGITAL PIN!)
+int salinityPin = 4; // PIN that will read the signal from the Salinity Sensor (ANALOG PIN!)
+int solenoidPin = 3; // PIN that will write a digital HIGH to power a solenoid (ANALOG PIN!)
+int mixingPin   = 2; // PIN that will write a digital HIGH to turn on the mixing fan (ANALOG PIN!)
 
 float salinityReading;   // Float that will hold the signal from the Salinity Sensor
 float convertedSalinity; // Float that will hold the Salinity Sensor's reading in Voltage
 
-// SET UP THE PRGOGRAM
+// SET UP THE PROGRAM
 void setup()
 {
   Serial.begin(9600);
@@ -18,33 +19,27 @@ void setup()
   Serial.print("LIBRARY VERSION: ");
   Serial.println(DHT_LIB_VERSION);
   Serial.println();
-  Serial.println("Type,\tstatus,\tHumidity (%),\tTemperature (C)");
+  Serial.println("Humidity (%),\tTempurature (C),\tSalinity (V),\tValue for Graph");
+  pinMode(mixingPin, OUTPUT);
+}
+
+void mix()
+{
+ analogWrite(mixingPin, 255); 
+ delay(10000);
+ analogWrite(mixingPin, 0);
+ delay();
 }
 
 // CREATE THE FUNCTIONALITY LOOP
 void loop()
 {
-  // TURN ON THE SOLENOID
-  digitalWrite(solenoidPin, HIGH);
+  // TURN ON THE MIXER
+  mix();
   
   // READ DATA FROM THE TEMPURATURE SENSOR
   // TEMP VARIABLE WAS ORIGINALLY CALLED chk
   int chk = DHT.read11(DHT11_PIN);
-  switch (chk)
-  {
-    case DHTLIB_OK:  
-                Serial.print("OK,\t"); 
-                break;
-    case DHTLIB_ERROR_CHECKSUM: 
-                Serial.print("Checksum error,\t"); 
-                break;
-    case DHTLIB_ERROR_TIMEOUT: 
-                Serial.print("Time out error,\t"); 
-                break;
-    default: 
-                Serial.print("Unknown error,\t"); 
-                break;
-  }
   
   // READ DATA FROM THE SALINITY SENSOR
   salinityReading = analogRead(salinityPin);  
@@ -53,11 +48,12 @@ void loop()
   
   // DISPLAY DATA
   Serial.print(DHT.humidity, 1);
-  Serial.print(",\t");
+  Serial.print(",\t\t");
   Serial.print(DHT.temperature, 1);
-  Serial.print(",\t");
+  Serial.print(",\t\t\t");
   Serial.print(convertedSalinity);
-  Serial.println(" V,");
+  Serial.print(" V,\t\t\t");
+  Serial.println(salinityReading);
   delay(2000);
 }
 
