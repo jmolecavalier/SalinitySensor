@@ -3,10 +3,14 @@
 
 dht DHT;
 
-int DHT11_PIN   = 5; // PIN that will read the signal from the Tempurature Sensor (DIGITAL PIN!)
-int salinityPin = 4; // PIN that will read the signal from the Salinity Sensor (ANALOG PIN!)
-int solenoidPin = 3; // PIN that will write a digital HIGH to power a solenoid (ANALOG PIN!)
-int mixingPin   = 2; // PIN that will write a digital HIGH to turn on the mixing fan (ANALOG PIN!)
+// Digital Pins
+int DHT11_PIN   = 0; // PIN that will read the signal from the Tempurature Sensor
+int mixingPin   = 1; // PIN that will write a digital HIGH to turn on the mixing fan
+
+// Analog Pins
+int salinityPin = 5; // PIN that will read the signal from the Salinity Sensor
+
+int k = 0;
 
 float salinityReading;   // Float that will hold the signal from the Salinity Sensor
 float convertedSalinity; // Float that will hold the Salinity Sensor's reading in Voltage
@@ -15,28 +19,21 @@ float convertedSalinity; // Float that will hold the Salinity Sensor's reading i
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("DHT TEST PROGRAM ");
-  Serial.print("LIBRARY VERSION: ");
-  Serial.println(DHT_LIB_VERSION);
-  Serial.println();
-  Serial.println("Humidity (%),\tTempurature (C),\tSalinity (V),\tValue for Graph");
+  Serial.println("Humidity (%)\tTempurature (C)\t\tSalinity (V)");
   pinMode(mixingPin, OUTPUT);
 }
 
-void mix()
+int mix()
 {
  analogWrite(mixingPin, 255); 
  delay(10000);
  analogWrite(mixingPin, 0);
- delay();
+ return 1;
 }
 
 // CREATE THE FUNCTIONALITY LOOP
 void loop()
-{
-  // TURN ON THE MIXER
-  mix();
-  
+{ 
   // READ DATA FROM THE TEMPURATURE SENSOR
   // TEMP VARIABLE WAS ORIGINALLY CALLED chk
   int chk = DHT.read11(DHT11_PIN);
@@ -48,12 +45,11 @@ void loop()
   
   // DISPLAY DATA
   Serial.print(DHT.humidity, 1);
-  Serial.print(",\t\t");
+  Serial.print("\t\t");
   Serial.print(DHT.temperature, 1);
-  Serial.print(",\t\t\t");
+  Serial.print("\t\t\t");
   Serial.print(convertedSalinity);
-  Serial.print(" V,\t\t\t");
-  Serial.println(salinityReading);
+  Serial.println(" V");
   delay(2000);
 }
 
