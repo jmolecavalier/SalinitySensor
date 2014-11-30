@@ -1,49 +1,86 @@
 // AUTHOR: Joshwa Moellenkamp
+
+// Include the library dependency for the humidity/tempurature sensor
 #include <dht.h>
+// Include the library dependency for the servo
+#include <Servo.h> 
 
 dht DHT;
 
 // Digital Pins
-int DHT11_PIN   = 0; // PIN that will read the signal from the Tempurature Sensor
-int mixingPin   = 1; // PIN that will write a digital HIGH to turn on the mixing fan
+int DHT11_PIN   = 6; // PIN that will read the signal from the Tempurature Sensor
+int mixingPin   = 3; // PIN that will write a digital LOW to trigger the relay and turn on the mixing fan
+int solenoidPin = 5; // PIN that will write a digital LOW to trigger the relay and turn on the solenoid
 
 // Analog Pins
 int salinityPin = 5; // PIN that will read the signal from the Salinity Sensor
 
-int k = 0;
-
-float salinityReading;   // Float that will hold the signal from the Salinity Sensor
-float convertedSalinity; // Float that will hold the Salinity Sensor's reading in Voltage
-
-// SET UP THE PROGRAM
+// Setup method for the program.
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("Humidity (%)\tTempurature (C)\t\tSalinity (V)");
+  // Set the pin mode for the mixingPin to be an output.
   pinMode(mixingPin, OUTPUT);
+  // Print the headers for the serial monitor.
+  Serial.println("Humidity (%)\tTempurature (C)\t\tSalinity (V)");
+  // Call the dumpReservoir() method.
+  dumpReservoir();
+  // Call the mix() method to agitate the mixture.
+  mix();
+  // Call the dumpBeads() method to add the beads.
+  dumpBeads();
 }
 
-int mix()
+// Dump the solution for a variable amount of time to get the desired solution. 
+void dumpReservoir()
 {
- analogWrite(mixingPin, 255); 
- delay(10000);
- analogWrite(mixingPin, 0);
- return 1;
+  Serial.println("dumpReservoir() function entered");
+  // TODO: FLIP THIS FOR ACTUAL USE.
+  digitalWrite(solenoidPin, HIGH);
+  delay(5000);
+  // TODO: FLIP THIS FOR ACTUAL USE.
+  digitalWrite(solenoidPin, LOW);
+
 }
 
-// CREATE THE FUNCTIONALITY LOOP
+// Method that will turn on the mixer. 
+// Set the delay() instruction to determine how long it will be left on.
+void mix()
+{
+  // Turn on the relay.
+  digitalWrite(mixingPin, LOW); 
+  
+  // The following line will determine how long the mixer will run.
+  delay(10000);
+  
+  // Turn off the relay.
+  digitalWrite(mixingPin, HIGH);
+}
+
+// Dump the beads from the hopper.
+// Set the delay() instruction to determine how long it will be left on.
+void dumpBeads()
+{
+  Serial.println("dumpBeads() function entered");
+
+}
+
+// Check the salinity and ambient data readings every 2 seconds
 void loop()
-{ 
-  // READ DATA FROM THE TEMPURATURE SENSOR
-  // TEMP VARIABLE WAS ORIGINALLY CALLED chk
+{   
+  // Read data from the tempurature sensor, save the information in variable 'chk'.
   int chk = DHT.read11(DHT11_PIN);
   
-  // READ DATA FROM THE SALINITY SENSOR
-  salinityReading = analogRead(salinityPin);  
-  // CONVERT THIS DATA TO A VOLTAGE
-  convertedSalinity = (salinityReading / 1023.0) * 5;
+  // Read analog input from the salinity sensor, save the reading to variable 'salinityReading'.
+  float salinityReading = analogRead(salinityPin);  
+  // Convert this reading to a voltage
+  float convertedSalinity = (salinityReading / 1023.0) * 5;
   
-  // DISPLAY DATA
+  
+  // TODO: GET THE SALINITY READINGS HERE
+  
+  
+  // Write out the collected data to the serial monitor.
   Serial.print(DHT.humidity, 1);
   Serial.print("\t\t");
   Serial.print(DHT.temperature, 1);
