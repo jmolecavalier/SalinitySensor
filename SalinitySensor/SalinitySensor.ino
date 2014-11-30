@@ -5,8 +5,9 @@
 // Include the library dependency for the servo
 #include <Servo.h> 
 
-// Initialize the tempurature sensor.
-dht DHT;
+// Initializations
+dht DHT;       // Tempurature sensor
+Servo myservo; // Servo
 
 // Digital Pins
 int DHT11_PIN   = 6; // PIN that will read the signal from the Tempurature Sensor
@@ -14,7 +15,10 @@ int solenoidPin = 5; // PIN that will write a digital LOW to trigger the relay a
 int mixingPin   = 3; // PIN that will write a digital LOW to trigger the relay and turn on the mixing fan
 
 // Analog Pins
-int salinityPin = 5; // PIN that will read the signal from the Salinity Sensor
+int salinityPin = 0; // PIN that will read the signal from the Salinity Sensor
+
+// Variables
+int pos         = 0; // Hold the position of the servo arm 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +45,9 @@ void setup()
   // Behavior for the output pins will be random unless explicitly set here.
   digitalWrite(mixingPin, HIGH);
   digitalWrite(solenoidPin, HIGH);
+  
+  // Declare the pin that the servo will use for signal.
+  myservo.attach(9);
   
   // Call the dumpReservoir() method.
   dumpReservoir();
@@ -97,6 +104,23 @@ void dumpBeads()
   Serial.print("Opening bead hopper for ");
   Serial.print(hopperTime/1000);
   Serial.print(" seconds... ");
+  
+  // Open the servo arm with this for loop.
+  for(pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
+  {                                  // in steps of 1 degree 
+    myservo.write(pos);              // tell servo to go to position in variable 'pos' 
+    delay(15);                       // waits 15ms for the servo to reach the position 
+  } 
+  
+  // Keep the servo arm open for the time specified.
+  delay(hopperTime);
+  
+  // Close the servo arm with this loop.
+  for(pos = 180; pos>=1; pos-=1)     // goes from 180 degrees to 0 degrees 
+  {                                
+    myservo.write(pos);              // tell servo to go to position in variable 'pos' 
+    delay(15);                       // waits 15ms for the servo to reach the position 
+  } 
   
   Serial.println("Finished.");
 }
