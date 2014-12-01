@@ -19,6 +19,8 @@ int salinityPin = 0; // PIN that will read the signal from the Salinity Sensor
 
 // Variables
 int pos         = 0; // Hold the position of the servo arm 
+double constant  = .0000002323057; // The constant for our salinity calculation
+double e         = 2.718; // The mathematical constant e
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +36,7 @@ int hopperTime    = 4000; // The amount of time that the servo will leave the ho
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Setup method for the program.
-void setup()
+void setup() 
 {
   Serial.begin(9600);
   
@@ -59,15 +61,15 @@ void setup()
   dumpBeads();
  
   // Print the headers for the serial monitor.
-  Serial.println("Humidity (%)\tTempurature (C)\t\tSalinity (V)");
+  // Serial.println("Time, Humidity (%), Tempurature (C), Salinity (g/liter)"); // No longer needed with 'Processing' taking care of
 }
 
 // Method that will dump the solution.
 void dumpReservoir()
 {
-  Serial.print("Dumping reservoir for ");
-  Serial.print(reservoirTime/1000);
-  Serial.print(" seconds... ");
+  // Serial.print("Dumping reservoir for ");
+  // Serial.print(reservoirTime/1000);
+  // Serial.print(" seconds... ");
   
   // Activate the solenoid by grounding the input on the relay.
   digitalWrite(solenoidPin, LOW);
@@ -77,15 +79,16 @@ void dumpReservoir()
 
   // Deactivate the solenoid as the process has been finished.
   digitalWrite(solenoidPin, HIGH);
-  Serial.println("Finished.");
+  
+  // Serial.println("Finished.");
 }
 
 // Method that will turn on the mixer. 
 void mix()
 {
-  Serial.print("Mixing solution for ");
-  Serial.print(mixTime/1000);
-  Serial.print(" seconds... ");
+  // Serial.print("Mixing solution for ");
+  // Serial.print(mixTime/1000);
+  // Serial.print(" seconds... ");
   
   // Turn on the relay.
   digitalWrite(mixingPin, LOW); 
@@ -95,15 +98,16 @@ void mix()
   
   // Turn off the relay.
   digitalWrite(mixingPin, HIGH);
-  Serial.println("Finished.");
+  
+  // Serial.println("Finished.");
 }
 
 // Method that will activate the bead hopper.
 void dumpBeads()
 {
-  Serial.print("Opening bead hopper for ");
-  Serial.print(hopperTime/1000);
-  Serial.print(" seconds... ");
+  // Serial.print("Opening bead hopper for ");
+  // Serial.print(hopperTime/1000);
+  // Serial.print(" seconds... ");
   
   // Open the servo arm with this for loop.
   for(pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
@@ -122,7 +126,7 @@ void dumpBeads()
     delay(15);                       // waits 15ms for the servo to reach the position 
   } 
   
-  Serial.println("Finished.");
+  // Serial.println("Finished.");
 }
 
 // Check the salinity and ambient data readings every 2 seconds
@@ -135,18 +139,24 @@ void loop()
   float salinityReading = analogRead(salinityPin);  
   // Convert this reading to a voltage
   float convertedSalinity = (salinityReading / 1023.0) * 5;
+  // Plug this voltage into the salinity formula, y = 119.24 x - 388.83
+  double salinity = (119.24 * convertedSalinity) - 388.83;
   
-  
-  // TODO: GET THE SALINITY READINGS HERE
-  
-  
+  // Because the arduino can't handle exponential calculations, the formula can be a bit erratic 
+  // when the sensor reading is low. This if sets the lower bound for salinity to 0.
+  if(salinity < 0.0) {
+    salinity = 0.0;
+  }
+
   // Write out the collected data to the serial monitor.
   Serial.print(DHT.humidity, 1);
-  Serial.print("\t\t");
+  Serial.print(",");
   Serial.print(DHT.temperature, 1);
-  Serial.print("\t\t\t");
-  Serial.print(convertedSalinity);
-  Serial.println(" V");
+  Serial.print(",");
+  Serial.print(salinity);
+  Serial.println(",");
+  
+  // Wait for two seconds before looping again.
   delay(2000);
 }
 
