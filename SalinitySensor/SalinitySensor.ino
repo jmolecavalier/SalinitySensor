@@ -150,11 +150,11 @@ void loop()
 
   // Write out the collected data to the serial monitor.
   Serial.print(DHT.humidity, 1);
-  Serial.print(",");
+  Serial.print(", ");
   Serial.print(DHT.temperature, 1);
-  Serial.print(",");
+  Serial.print(", ");
   Serial.print(salinity);
-  Serial.println(",");
+  Serial.println(", ");
   
   // Wait for two seconds before looping again.
   delay(2000);
